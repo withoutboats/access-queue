@@ -61,6 +61,12 @@ pub struct Access<'a, T> {
     listener: Option<EventListener>,
 }
 
+impl<'a, T> Access<'a, T> {
+    pub fn skip_queue(&self) -> &T {
+        self.queue.skip_queue()
+    }
+}
+
 impl<'a, T> Future for Access<'a, T> {
     type Output = AccessGuard<'a, T>;
 
