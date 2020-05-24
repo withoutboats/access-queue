@@ -62,7 +62,7 @@ pub struct Access<'a, T> {
 }
 
 impl<'a, T> Future for Access<'a, T> {
-    type Output = &'a T;
+    type Output = AccessGuard<'a, T>;
 
     fn poll(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
         if let Some(listener) = &mut self.listener {
@@ -83,7 +83,7 @@ impl<'a, T> Future for Access<'a, T> {
             }
         }
 
-        Poll::Ready(self.queue.skip_queue())
+        Poll::Ready(AccessGuard { queue: self.queue })
     }
 }
 
