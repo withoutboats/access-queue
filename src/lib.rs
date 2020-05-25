@@ -151,8 +151,23 @@ impl<'a, T> AccessGuard<'a, T> {
     /// Normaly, when an `AccessGuard` drops, it releases one access in the `AccessQueue` so that
     /// another `Access` can resolve. If this method is called, instead it is downgraded into a
     /// normal reference and the access is never released.
+    #[inline]
     pub fn hold_indefinitely(self) -> &'a T {
         ManuallyDrop::new(self).queue.skip_queue()
+    }
+
+    /// Release the current access and re-enqueue to wait for another access.
+    #[inline]
+    pub fn reenqueue(self) -> Access<'a, T> {
+        self.queue.release(1);
+        self.hold_and_reenqueue().1
+    }
+
+    /// Hold this access indefinitely while also re-enqueuing
+    #[inline]
+    pub fn hold_and_reenqueue(self) -> (&'a T, Access<'a, T>) {
+        let this = ManuallyDrop::new(self);
+        (this.queue.skip_queue(), this.queue.access())
     }
 }
 
