@@ -1,5 +1,6 @@
 [package]
 name = "access-queue"
+description = "limit the number of simultaneous accesses to a value"
 version = "1.0.0"
 authors = ["Without Boats <woboats@gmail.com>"]
 edition = "2018"
