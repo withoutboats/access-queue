@@ -42,5 +42,5 @@ are supported as well:
 ## Safety
 
 `AccessQueue` is a concurrency primitive, but it does not allow mutable access to any value because
-it never guarantees that any access is exclusive. For this reason, `AccessQueue` is 100% safe coe,
+it never guarantees that any access is exclusive. For this reason, `AccessQueue` is 100% safe code,
 because its correctness properties do not have anything to do with memory safety.
