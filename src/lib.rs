@@ -41,6 +41,10 @@ impl<T> AccessQueue<T> {
     ///
     /// This reduces the number of concurrent accesses to the guarded item that are allowed. Until
     /// `release` is called, this many accesses are blocked from occurring.
+    ///
+    /// This function returns `true` if it successfully blocked these accesses, and `false` if it
+    /// could not. Blocking only fails if there are not as many accesses left in the queue as the
+    /// caller has attempted to block.
     pub fn block(&self, amt: usize) -> bool {
         let mut current = self.count.load(SeqCst);
         while current >= amt {
