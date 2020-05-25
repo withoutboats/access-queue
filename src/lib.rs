@@ -171,4 +171,4 @@ impl<'a, T> Drop for AccessGuard<'a, T> {
 }
 
 #[allow(dead_code)]
-fn is_send_sync<T: Send + Sync>() where AccessQueue<T>: Send + Sync { }
+fn is_send_sync() where AccessQueue<()>: Send + Sync { }
