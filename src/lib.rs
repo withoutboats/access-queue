@@ -15,6 +15,9 @@ use std::task::{Context, Poll};
 use futures_core::ready;
 use event_listener::{Event, EventListener};
 
+#[cfg(test)]
+mod tests;
+
 /// The AccessQueue which guards access to some item.
 #[derive(Debug)]
 pub struct AccessQueue<T> {
@@ -55,7 +58,7 @@ impl<T> AccessQueue<T> {
     /// can be paired with `block` to raise and lower the limit.
     pub fn release(&self, amt: usize) {
         self.count.fetch_add(amt, SeqCst);
-        self.event.notify(amt);
+        self.event.notify_additional(amt);
     }
 
     /// Wait in the queue to access the guarded item.
