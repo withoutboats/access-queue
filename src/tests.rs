@@ -61,3 +61,51 @@ fn releases_accesses_fifo() {
     let a2 = Pin::new(&mut a2_f).poll(&mut ctx);
     assert!(matches!(&a2, &Poll::Ready(_)));
 }
+
+#[test]
+fn reenqueue() {
+    let mut ctx = Context::from_waker(futures_task::noop_waker_ref());
+    let queue = AccessQueue::new((), 1);
+
+    let mut a1_f = queue.access();
+    let mut a2_f = queue.access();
+
+    let a1 = Pin::new(&mut a1_f).poll(&mut ctx);
+    assert!(matches!(&a1, &Poll::Ready(_)));
+
+    let a2 = Pin::new(&mut a2_f).poll(&mut ctx);
+    assert!(matches!(&a2, &Poll::Pending));
+
+    if let Poll::Ready(a1) = a1 { a1.reenqueue(); } else { unreachable!() }
+
+    let a2 = Pin::new(&mut a2_f).poll(&mut ctx);
+    assert!(matches!(&a2, &Poll::Ready(_)));
+
+    let a1 = Pin::new(&mut a1_f).poll(&mut ctx);
+    assert!(matches!(&a1, &Poll::Pending));
+
+    drop(a2);
+
+    let a1 = Pin::new(&mut a1_f).poll(&mut ctx);
+    assert!(matches!(&a1, &Poll::Ready(_)));
+}
+
+#[test]
+fn hold_indefinitely_does_not_release() {
+    let mut ctx = Context::from_waker(futures_task::noop_waker_ref());
+    let queue = AccessQueue::new((), 1);
+
+    let mut a1_f = queue.access();
+    let mut a2_f = queue.access();
+
+    let a1 = Pin::new(&mut a1_f).poll(&mut ctx);
+    assert!(matches!(&a1, &Poll::Ready(_)));
+
+    let a2 = Pin::new(&mut a2_f).poll(&mut ctx);
+    assert!(matches!(&a2, &Poll::Pending));
+
+    if let Poll::Ready(a1) = a1 { a1.hold_indefinitely(); } else { unreachable!() }
+
+    let a2 = Pin::new(&mut a2_f).poll(&mut ctx);
+    assert!(matches!(&a2, &Poll::Pending))
+}
